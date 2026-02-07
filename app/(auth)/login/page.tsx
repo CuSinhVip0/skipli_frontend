@@ -25,6 +25,7 @@ export default function LoginPage() {
                 number = "+".concat(number)
             }
             await authService.sendSmsCode(number)
+            message.success("Code sent to your phone!")
             router.push(`/verify?phone=${encodeURIComponent(number)}&method=sms`)
         } catch (e) {
             setStateInput("error")
@@ -38,7 +39,23 @@ export default function LoginPage() {
         }
     }
 
-    const handleEmailLogin = async (values: { email: string }) => {}
+    const handleEmailLogin = async (values: { email: string }) => {
+        setLoading(true)
+        try {
+            await authService.sendEmailCode(values.email.toString().trim())
+            message.success("Code sent to your email!")
+            router.push(`/verify?email=${encodeURIComponent(values.email)}&method=email`)
+        } catch (error) {
+            setStateInput("error")
+            message.error((error as ApiError).error)
+            message.error("Failed to send code")
+            inputRef.current!.focus({
+                cursor: "all",
+            })
+        } finally {
+            setLoading(false)
+        }
+    }
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 px-4 py-8">
@@ -120,6 +137,49 @@ export default function LoginPage() {
                                     size="large"
                                     prefix={<PhoneOutlined className="text-gray-400" />}
                                     inputMode="numeric"
+                                />
+                            </Form.Item>
+                            <Button
+                                type="primary"
+                                htmlType="submit"
+                                block
+                                size="large"
+                                loading={loading}
+                                className="h-12"
+                            >
+                                Submit
+                            </Button>
+                        </Form>
+                        <div className="mt-4 text-center text-sm">
+                            <span className="text-gray-600">Code not received? </span>
+                            <Button type="link" className="p-0">
+                                Send again
+                            </Button>
+                        </div>
+                    </>
+                )}
+
+                {loginMethod === "email" && (
+                    <>
+                        <Form onFinish={handleEmailLogin} layout="vertical">
+                            <Form.Item
+                                name="email"
+                                label="Email Address"
+                                rules={[
+                                    { required: true, message: "Please enter your email" },
+                                    {
+                                        type: "email",
+                                        message: "Please enter a valid email",
+                                    },
+                                ]}
+                            >
+                                <Input
+                                    ref={inputRef}
+                                    status={stateInput}
+                                    placeholder="your@email.com"
+                                    size="large"
+                                    inputMode={"email"}
+                                    prefix={<MailOutlined className="text-gray-400" />}
                                 />
                             </Form.Item>
                             <Button

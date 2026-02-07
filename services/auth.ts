@@ -4,7 +4,6 @@ import { apiClient } from "../utils/apiClient"
 export interface SendCodeResponse {
     success: boolean
     message?: string
-    accessCode?: string
 }
 
 export interface ValidateCodeResponse {
@@ -28,6 +27,21 @@ export const authService = {
     ): Promise<ValidateCodeResponse> => {
         const response = await apiClient.post<ValidateCodeResponse>("/validateAccessCode", {
             phoneNumber,
+            accessCode,
+        })
+        return response.data
+    },
+
+    sendEmailCode: async (email: string): Promise<SendCodeResponse> => {
+        const response = await apiClient.post<SendCodeResponse>("/loginEmail", {
+            email,
+        })
+        return response.data
+    },
+
+    validateEmailCode: async (email: string, accessCode: string): Promise<ValidateCodeResponse> => {
+        const response = await apiClient.post<ValidateCodeResponse>("/validateAccessCodeEmail", {
+            email,
             accessCode,
         })
         return response.data

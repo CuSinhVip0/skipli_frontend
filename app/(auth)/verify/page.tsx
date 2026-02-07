@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { authService } from "@/services/auth"
 import { useAuthStore } from "@/store/auth"
 import { SafetyOutlined, ArrowLeftOutlined } from "@ant-design/icons"
+import { ApiError } from "@/utils/apiClient"
 
 function VerifyContent() {
     const [loading, setLoading] = useState(false)
@@ -36,7 +37,10 @@ function VerifyContent() {
 
             if (method === "sms" && phone) {
                 response = await authService.validateSmsCode(phone, values.code)
+            } else if (method === "email" && email) {
+                response = await authService.validateEmailCode(email, values.code)
             }
+
             if (response?.success) {
                 const user = {
                     ...response.userData,
@@ -52,8 +56,8 @@ function VerifyContent() {
                     router.push("/student")
                 }
             }
-        } catch {
-            message.error("Invalid or expired code")
+        } catch (error) {
+            message.error((error as ApiError).error)
         } finally {
             setLoading(false)
         }
@@ -64,9 +68,12 @@ function VerifyContent() {
             if (method === "sms" && phone) {
                 await authService.sendSmsCode(phone)
                 message.success("New code sent to your phone!")
+            } else if (method === "email" && email) {
+                await authService.sendEmailCode(email)
+                message.success("New code sent to your email!")
             }
-        } catch {
-            message.error("Failed to resend code")
+        } catch (error) {
+            message.error((error as ApiError).error)
         }
     }
 
