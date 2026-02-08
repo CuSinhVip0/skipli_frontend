@@ -41,10 +41,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             onClick: () => router.push("/student/my-lessons"),
         },
         {
-            key: "/student/profile",
+            key: "/student/edit-profile",
             icon: <UserOutlined />,
             label: "Profile",
-            onClick: () => router.push("/student/profile"),
+            onClick: () => router.push("/student/edit-profile"),
         },
     ]
 
@@ -61,14 +61,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
     // Determine selected menu key based on pathname
     const getSelectedKey = () => {
-        if (pathname === "/instructor" || pathname.startsWith("/instructor/students")) {
-            return "/instructor"
-        }
-        if (pathname.startsWith("/student/profile")) {
-            return "/student/profile"
-        }
-        if (pathname.startsWith("/student")) {
-            return "/student"
+        if (pathname.startsWith("/instructor/manage-students")) {
+            return "/instructor/manage-students"
+        } else if (pathname.startsWith("/instructor/manage-lessons")) {
+            return "/instructor/manage-lessons"
+        } else if (pathname.startsWith("/student/edit-profile")) {
+            return "/student/edit-profile"
+        } else if (pathname.startsWith("/student/my-lessons")) {
+            return "/student/my-lessons"
         }
         return pathname
     }
