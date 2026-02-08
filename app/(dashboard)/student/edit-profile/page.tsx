@@ -1,200 +1,131 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { Card, Progress, Empty, Spin, Tag, Button, App } from "antd"
-import { BookOutlined, CheckCircleOutlined, ClockCircleOutlined } from "@ant-design/icons"
+import { useState, useEffect } from "react"
+import { Card, Form, Input, Button, message, Space, Divider } from "antd"
+import {
+    UserOutlined,
+    MailOutlined,
+    PhoneOutlined,
+    SaveOutlined,
+    RollbackOutlined,
+} from "@ant-design/icons"
+import { useRouter } from "next/navigation"
 import { studentService } from "@/services/student"
-import { format } from "date-fns"
+import { useSession } from "next-auth/react"
 import { ApiError } from "@/utils/apiClient"
-import { Lesson } from "@/types/lesson.type"
+import { phoneRegion } from "@/utils"
 import { LayoutComponent } from "@/components/LayoutComponent"
 
-export default function StudentDashboard() {
-    const [lessons, setLessons] = useState<Lesson[]>([])
-    const [loading, setLoading] = useState(true)
-    const [loadingStatus, setLoadingStatus] = useState(false)
-    const { message } = App.useApp()
-    useEffect(() => {
-        setLoading(true)
-        loadLessons()
-    }, [])
+export default function EditProfilePage() {
+    const [form] = Form.useForm()
+    const [loading, setLoading] = useState(false)
+    const { data: session, status, update } = useSession()
 
-    const loadLessons = async () => {
+    useEffect(() => {
+        if (session) {
+            form.setFieldsValue({
+                phone: phoneRegion(session?.user.phone || ""),
+                name: session?.user.name,
+                email: session?.user.email,
+            })
+        }
+    }, [session, form])
+
+    const handleSubmit = async (values: { name: string; email: string }) => {
+        if (!session?.user.phone && !session?.user.email) {
+            message.error("User information not found")
+            return
+        }
+
+        setLoading(true)
         try {
-            const response = await studentService.getMyLessons()
-            setLessons(response.lessons || [])
+            await studentService.editProfile({
+                name: values.name,
+                email: values.email,
+            })
+
+            message.success("Profile updated successfully!")
+            await update({
+                user: {
+                    ...session?.user,
+                    name: values.name,
+                    email: values.email,
+                },
+            })
         } catch (error) {
             const apiError = error as ApiError
-            message.error(apiError.error || "Failed to load lessons")
+            message.error(apiError.error || "Failed to update profile")
         } finally {
             setLoading(false)
         }
     }
 
-    const handleMarkDone = async (lessonId: string) => {
-        setLoadingStatus(true)
-        try {
-            await studentService.markLessonDone({ lessonId })
-            message.success("Lesson marked as completed!")
-            await loadLessons()
-        } catch (error) {
-            const apiError = error as ApiError
-            message.error(apiError.error || "Failed to mark lesson as done")
-        } finally {
-            setLoadingStatus(false)
-        }
-    }
-
-    if (loading) {
-        return (
-            <div className="flex justify-center items-center min-h-[400px]">
-                <Spin size="large" />
-            </div>
-        )
-    }
-
-    const completedCount = lessons.filter((l) => l.completed).length
-    const totalCount = lessons.length
-    const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0
-
     return (
-        <LayoutComponent
-            title={"My Lessons"}
-            subtitle={"Track your learning progress and complete assignments"}
-        >
-            <div className="bg-white rounded-lg shadow-sm">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                    <Card>
-                        <div className="flex items-center gap-3">
-                            <div className="bg-blue-100 p-3 rounded-lg">
-                                <BookOutlined className="text-2xl text-blue-600" />
-                            </div>
-                            <div>
-                                <div className="text-2xl font-bold text-gray-800">{totalCount}</div>
-                                <div className="text-sm text-gray-600">Total Lessons</div>
-                            </div>
-                        </div>
-                    </Card>
-                    <Card>
-                        <div className="flex items-center gap-3">
-                            <div className="bg-green-100 p-3 rounded-lg">
-                                <CheckCircleOutlined className="text-2xl text-green-600" />
-                            </div>
-                            <div>
-                                <div className="text-2xl font-bold text-gray-800">
-                                    {completedCount}
-                                </div>
-                                <div className="text-sm text-gray-600">Completed</div>
-                            </div>
-                        </div>
-                    </Card>
-                    <Card>
-                        <div>
-                            <div className="flex justify-between items-center mb-2">
-                                <span className="text-sm font-medium text-gray-600">
-                                    Overall Progress
-                                </span>
-                                <span className="text-lg font-bold text-purple-600">
-                                    {Math.round(progress)}%
-                                </span>
-                            </div>
-                            <Progress
-                                percent={progress}
-                                status={progress === 100 ? "success" : "active"}
-                                showInfo={false}
-                            />
-                        </div>
-                    </Card>
-                </div>
-                {lessons.length === 0 ? (
-                    <Card>
-                        <Empty
-                            image={Empty.PRESENTED_IMAGE_SIMPLE}
-                            description="No lessons assigned yet"
+        <LayoutComponent title={"Edit Profile"} subtitle={"Update your personal information"}>
+            <div className="bg-white rounded-lg shadow-sm p-6">
+                <Card>
+                    <Form form={form} layout="vertical" onFinish={handleSubmit} autoComplete="off">
+                        <Form.Item
+                            name="name"
+                            label="Full Name"
+                            rules={[
+                                { required: true, message: "Please enter your name" },
+                                { min: 2, message: "Name must be at least 2 characters" },
+                                { max: 100, message: "Name must not exceed 100 characters" },
+                            ]}
                         >
-                            <p className="text-gray-500">
-                                Your instructor will assign lessons for you to complete
-                            </p>
-                        </Empty>
-                    </Card>
-                ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {lessons.map((lesson) => {
-                            return (
-                                <Card
-                                    key={lesson.id}
-                                    title={
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-base font-semibold">
-                                                {lesson.title}
-                                            </span>
-                                            {lesson.completed ? (
-                                                <Tag icon={<CheckCircleOutlined />} color="success">
-                                                    Completed
-                                                </Tag>
-                                            ) : (
-                                                <Tag icon={<ClockCircleOutlined />} color="warning">
-                                                    Pending
-                                                </Tag>
-                                            )}
-                                        </div>
-                                    }
-                                    className="h-full flex flex-col"
-                                    bodyStyle={{
-                                        flex: 1,
-                                        display: "flex",
-                                        flexDirection: "column",
-                                    }}
+                            <Input
+                                prefix={<UserOutlined className="text-gray-400" />}
+                                placeholder="Enter your full name"
+                                size="large"
+                                maxLength={100}
+                            />
+                        </Form.Item>
+
+                        <Form.Item
+                            name="phone"
+                            label="Phone Number"
+                            rules={[{ required: true, message: "Please enter your phone number" }]}
+                        >
+                            <Input
+                                prefix={<PhoneOutlined className="text-gray-400" />}
+                                placeholder="Enter your phone number"
+                                size="large"
+                                disabled={true}
+                                maxLength={100}
+                            />
+                        </Form.Item>
+
+                        <Form.Item
+                            name="email"
+                            label="Email Address"
+                            rules={[
+                                { required: true, message: "Please enter your email address" },
+                                { type: "email", message: "Please enter a valid email address" },
+                            ]}
+                        >
+                            <Input
+                                prefix={<MailOutlined className="text-gray-400" />}
+                                placeholder="your.email@example.com"
+                                size="large"
+                            />
+                        </Form.Item>
+
+                        <Form.Item className="mb-0 mt-6">
+                            <Space size="middle">
+                                <Button
+                                    type="primary"
+                                    htmlType="submit"
+                                    icon={<SaveOutlined />}
+                                    loading={loading}
+                                    size="large"
                                 >
-                                    <p className="text-gray-600 mb-4 flex-1">
-                                        {lesson.description}
-                                    </p>
-
-                                    <div className="space-y-3">
-                                        <div className="text-sm text-gray-500 pb-3 border-b">
-                                            <div>
-                                                <span className="font-medium">Assigned:</span>{" "}
-                                                {format(
-                                                    new Date(lesson.assignedAt),
-                                                    "MMM dd, yyyy",
-                                                )}
-                                            </div>
-                                            {lesson.completed && lesson.completedAt && (
-                                                <div className="mt-1">
-                                                    <span className="font-medium">Completed:</span>{" "}
-                                                    {format(
-                                                        new Date(lesson.completedAt),
-                                                        "MMM dd, yyyy",
-                                                    )}
-                                                </div>
-                                            )}
-                                        </div>
-
-                                        {!lesson.completed && (
-                                            <Button
-                                                type="primary"
-                                                block
-                                                size="large"
-                                                loading={loadingStatus}
-                                                onClick={() => handleMarkDone(lesson?.id || "")}
-                                                icon={<CheckCircleOutlined />}
-                                            >
-                                                Mark as Complete
-                                            </Button>
-                                        )}
-
-                                        {lesson.completed && (
-                                            <div className="text-center text-green-600 font-medium py-2">
-                                                <CheckCircleOutlined className="mr-2" />
-                                                Lesson Completed!
-                                            </div>
-                                        )}
-                                    </div>
-                                </Card>
-                            )
-                        })}
-                    </div>
-                )}
+                                    Save Changes
+                                </Button>
+                            </Space>
+                        </Form.Item>
+                    </Form>
+                </Card>
             </div>
         </LayoutComponent>
     )

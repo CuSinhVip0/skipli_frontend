@@ -3,9 +3,7 @@
 import { Layout, Menu, Button, Avatar, Dropdown } from "antd"
 import { LogoutOutlined, UserOutlined, BookOutlined, TeamOutlined } from "@ant-design/icons"
 import { useRouter, usePathname } from "next/navigation"
-import { useAuthStore } from "@/store/auth"
 import { signOut, useSession } from "next-auth/react"
-import { stat } from "fs"
 
 const { Header, Sider, Content } = Layout
 

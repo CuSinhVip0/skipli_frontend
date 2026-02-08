@@ -1,18 +1,26 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Card, Progress, Empty, Spin, Tag, Button, App } from "antd"
-import { BookOutlined, CheckCircleOutlined, ClockCircleOutlined } from "@ant-design/icons"
+import { Card, Progress, Empty, Spin, Tag, Button, App, Flex } from "antd"
+import {
+    BookOutlined,
+    CheckCircleOutlined,
+    ClockCircleOutlined,
+    EyeFilled,
+} from "@ant-design/icons"
 import { studentService } from "@/services/student"
-import { format } from "date-fns"
+import { format, set } from "date-fns"
 import { ApiError } from "@/utils/apiClient"
 import { Lesson } from "@/types/lesson.type"
 import { LayoutComponent } from "@/components/LayoutComponent"
+import DataView from "@/components/student/DetailsView"
 
 export default function StudentDashboard() {
     const [lessons, setLessons] = useState<Lesson[]>([])
     const [loading, setLoading] = useState(true)
     const [loadingStatus, setLoadingStatus] = useState(false)
+    const [openModal, setOpenModal] = useState<boolean>(false)
+    const [dataSelect, setDataSelect] = useState<Lesson | null>(null)
     const { message } = App.useApp()
     useEffect(() => {
         setLoading(true)
@@ -45,14 +53,6 @@ export default function StudentDashboard() {
         }
     }
 
-    if (loading) {
-        return (
-            <div className="flex justify-center items-center min-h-[400px]">
-                <Spin size="large" />
-            </div>
-        )
-    }
-
     const completedCount = lessons.filter((l) => l.completed).length
     const totalCount = lessons.length
     const progress = totalCount > 0 ? (completedCount / totalCount) * 100 : 0
@@ -61,33 +61,54 @@ export default function StudentDashboard() {
         <LayoutComponent
             title={"My Lessons"}
             subtitle={"Track your learning progress and complete assignments"}
+            modals={
+                <>
+                    {openModal && (
+                        <DataView
+                            open={openModal}
+                            values={dataSelect}
+                            onClose={() => setOpenModal(false)}
+                        />
+                    )}
+                </>
+            }
         >
-            <div className="bg-white rounded-lg shadow-sm">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                    <Card>
-                        <div className="flex items-center gap-3">
-                            <div className="bg-blue-100 p-3 rounded-lg">
-                                <BookOutlined className="text-2xl text-blue-600" />
-                            </div>
-                            <div>
-                                <div className="text-2xl font-bold text-gray-800">{totalCount}</div>
-                                <div className="text-sm text-gray-600">Total Lessons</div>
-                            </div>
-                        </div>
-                    </Card>
-                    <Card>
-                        <div className="flex items-center gap-3">
-                            <div className="bg-green-100 p-3 rounded-lg">
-                                <CheckCircleOutlined className="text-2xl text-green-600" />
-                            </div>
-                            <div>
-                                <div className="text-2xl font-bold text-gray-800">
-                                    {completedCount}
+            <div className="flex flex-col gap-2 bg-white rounded-lg shadow-sm">
+                <div className="basis-auto grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <Flex>
+                        <Card className="w-full">
+                            <div className="flex items-center gap-2">
+                                <div className="bg-amber-100 p-3 rounded-lg">
+                                    <BookOutlined
+                                        style={{ color: "blue", fontSize: 24 }}
+                                        className="text-2xl"
+                                    />
                                 </div>
-                                <div className="text-sm text-gray-600">Completed</div>
+                                <div>
+                                    <div className="text-2xl font-bold text-gray-800">
+                                        {totalCount}
+                                    </div>
+                                    <div className="text-sm text-gray-600">Total Lessons</div>
+                                </div>
                             </div>
-                        </div>
-                    </Card>
+                        </Card>
+                        <Card className="w-full">
+                            <div className="flex items-center gap-2">
+                                <div className="bg-green-100 p-3 rounded-lg">
+                                    <CheckCircleOutlined
+                                        style={{ color: "green", fontSize: 24 }}
+                                        className="text-2xl text-green-600"
+                                    />
+                                </div>
+                                <div>
+                                    <div className="text-2xl font-bold text-gray-800">
+                                        {completedCount}
+                                    </div>
+                                    <div className="text-sm text-gray-600">Completed</div>
+                                </div>
+                            </div>
+                        </Card>
+                    </Flex>
                     <Card>
                         <div>
                             <div className="flex justify-between items-center mb-2">
@@ -106,7 +127,11 @@ export default function StudentDashboard() {
                         </div>
                     </Card>
                 </div>
-                {lessons.length === 0 ? (
+                {loading ? (
+                    <div className="flex justify-center items-center">
+                        <Spin size="large" />
+                    </div>
+                ) : lessons.length === 0 ? (
                     <Card>
                         <Empty
                             image={Empty.PRESENTED_IMAGE_SIMPLE}
@@ -118,79 +143,110 @@ export default function StudentDashboard() {
                         </Empty>
                     </Card>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grow grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 ">
                         {lessons.map((lesson) => {
                             return (
-                                <Card
-                                    key={lesson.id}
-                                    title={
-                                        <div className="flex justify-between items-center">
-                                            <span className="text-base font-semibold">
-                                                {lesson.title}
-                                            </span>
-                                            {lesson.completed ? (
-                                                <Tag icon={<CheckCircleOutlined />} color="success">
-                                                    Completed
-                                                </Tag>
-                                            ) : (
-                                                <Tag icon={<ClockCircleOutlined />} color="warning">
-                                                    Pending
-                                                </Tag>
-                                            )}
-                                        </div>
-                                    }
-                                    className="h-full flex flex-col"
-                                    bodyStyle={{
-                                        flex: 1,
-                                        display: "flex",
-                                        flexDirection: "column",
-                                    }}
-                                >
-                                    <p className="text-gray-600 mb-4 flex-1">
-                                        {lesson.description}
-                                    </p>
-
-                                    <div className="space-y-3">
-                                        <div className="text-sm text-gray-500 pb-3 border-b">
-                                            <div>
-                                                <span className="font-medium">Assigned:</span>{" "}
-                                                {format(
-                                                    new Date(lesson.assignedAt),
-                                                    "MMM dd, yyyy",
+                                <div key={lesson.id} style={{ padding: "8px 0px" }}>
+                                    <Card
+                                        size="small"
+                                        title={
+                                            <div className="flex justify-between items-center">
+                                                <span className="text-xl font-semibold">
+                                                    {lesson.title}
+                                                </span>
+                                                {lesson.completed ? (
+                                                    <div className=" flex flex-row gap-2">
+                                                        <div className="mt-1  text-sm">
+                                                            <span className="font-medium">
+                                                                Completed:
+                                                            </span>{" "}
+                                                            {format(
+                                                                new Date(lesson?.completedAt || ""),
+                                                                "MMM dd, yyyy",
+                                                            )}
+                                                        </div>
+                                                        <Tag
+                                                            icon={<CheckCircleOutlined />}
+                                                            color="success"
+                                                        >
+                                                            Completed
+                                                        </Tag>
+                                                    </div>
+                                                ) : (
+                                                    <div className=" flex flex-row gap-2">
+                                                        <div className="mt-1  text-sm">
+                                                            <span className="font-medium">
+                                                                Assigned:
+                                                            </span>
+                                                            {format(
+                                                                new Date(lesson?.assignedAt || ""),
+                                                                "MMM dd, yyyy",
+                                                            )}
+                                                        </div>
+                                                        <Tag
+                                                            icon={<ClockCircleOutlined />}
+                                                            color="warning"
+                                                        >
+                                                            Pending
+                                                        </Tag>
+                                                    </div>
                                                 )}
                                             </div>
-                                            {lesson.completed && lesson.completedAt && (
-                                                <div className="mt-1">
-                                                    <span className="font-medium">Completed:</span>{" "}
-                                                    {format(
-                                                        new Date(lesson.completedAt),
-                                                        "MMM dd, yyyy",
-                                                    )}
-                                                </div>
+                                        }
+                                        className="h-full flex flex-col"
+                                        classNames={{ body: "!py-2 p-0!" }}
+                                    >
+                                        <p className="text-gray-600 text-xl flex-1">
+                                            {lesson.description}
+                                        </p>
+
+                                        <div className="">
+                                            {!lesson.completed && (
+                                                <Flex gap={"small"}>
+                                                    <Button
+                                                        block
+                                                        size="middle"
+                                                        loading={loadingStatus}
+                                                        onClick={() => {
+                                                            setOpenModal(true)
+                                                            setDataSelect(lesson)
+                                                        }}
+                                                        icon={<EyeFilled />}
+                                                    >
+                                                        Detail View
+                                                    </Button>
+                                                    <Button
+                                                        type="primary"
+                                                        block
+                                                        size="middle"
+                                                        loading={loadingStatus}
+                                                        onClick={() =>
+                                                            handleMarkDone(lesson?.id || "")
+                                                        }
+                                                        icon={<CheckCircleOutlined />}
+                                                    >
+                                                        Mark as Complete
+                                                    </Button>
+                                                </Flex>
+                                            )}
+
+                                            {lesson.completed && (
+                                                <Button
+                                                    block
+                                                    size="middle"
+                                                    loading={loadingStatus}
+                                                    onClick={() => {
+                                                        setOpenModal(true)
+                                                        setDataSelect(lesson)
+                                                    }}
+                                                    icon={<EyeFilled />}
+                                                >
+                                                    Detail View
+                                                </Button>
                                             )}
                                         </div>
-
-                                        {!lesson.completed && (
-                                            <Button
-                                                type="primary"
-                                                block
-                                                size="large"
-                                                loading={loadingStatus}
-                                                onClick={() => handleMarkDone(lesson?.id || "")}
-                                                icon={<CheckCircleOutlined />}
-                                            >
-                                                Mark as Complete
-                                            </Button>
-                                        )}
-
-                                        {lesson.completed && (
-                                            <div className="text-center text-green-600 font-medium py-2">
-                                                <CheckCircleOutlined className="mr-2" />
-                                                Lesson Completed!
-                                            </div>
-                                        )}
-                                    </div>
-                                </Card>
+                                    </Card>
+                                </div>
                             )
                         })}
                     </div>

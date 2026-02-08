@@ -16,7 +16,6 @@ export interface ApiResponse<T = any> {
 }
 
 export interface UpdateProfilePayload {
-    phone: string
     name?: string
     email?: string
 }

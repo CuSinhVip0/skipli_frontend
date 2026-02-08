@@ -1,7 +1,7 @@
 "use client"
 
 import { useRef, useState } from "react"
-import { Card, Form, Input, Button, App, Space, InputRef } from "antd"
+import { Card, Form, Input, Button, App, Space, InputRef, Flex } from "antd"
 import { useRouter } from "next/navigation"
 import { authService } from "@/services/auth"
 import { MailOutlined, PhoneOutlined, ArrowLeftOutlined, SafetyOutlined } from "@ant-design/icons"
@@ -72,7 +72,7 @@ export default function LoginPage() {
                     </Button>
                 )}
 
-                <div className="text-center mb-8">
+                <div className="text-center pb-9">
                     <h1 className="text-3xl font-bold text-gray-800 mb-2">
                         {loginMethod === "select"
                             ? "Sign In"
@@ -88,7 +88,7 @@ export default function LoginPage() {
                 </div>
 
                 {loginMethod === "select" && (
-                    <div className="space-y-3">
+                    <Flex gap={"middle"} orientation="vertical">
                         <Button
                             type="default"
                             size="large"
@@ -109,7 +109,7 @@ export default function LoginPage() {
                         >
                             Continue with Phone
                         </Button>
-                    </div>
+                    </Flex>
                 )}
 
                 {loginMethod === "phone" && (
@@ -200,15 +200,6 @@ export default function LoginPage() {
                             </Button>
                         </div>
                     </>
-                )}
-
-                {loginMethod === "select" && (
-                    <div className="mt-6 text-center text-sm">
-                        <span className="text-gray-600">Dont having account? </span>
-                        <Button type="link" className="p-0 font-medium">
-                            Sign up
-                        </Button>
-                    </div>
                 )}
             </Card>
         </div>
