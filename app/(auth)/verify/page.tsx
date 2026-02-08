@@ -7,6 +7,7 @@ import { authService } from "@/services/auth"
 import { useAuthStore } from "@/store/auth"
 import { SafetyOutlined, ArrowLeftOutlined } from "@ant-design/icons"
 import { ApiError } from "@/utils/apiClient"
+import { signIn } from "next-auth/react"
 
 function VerifyContent() {
     const [loading, setLoading] = useState(false)
@@ -21,43 +22,25 @@ function VerifyContent() {
     const method = searchParams.get("method") as "sms" | "email"
     const prefilledCode = searchParams.get("code")
 
-    useEffect(() => {
-        if (!phone && !email) {
-            router.push("/login")
-        }
-        if (prefilledCode) {
-            form.setFieldsValue({ code: prefilledCode })
-        }
-    }, [phone, email, prefilledCode, router, form])
-
     const handleVerify = async (values: { code: string }) => {
         setLoading(true)
         try {
-            let response
+            const result = await signIn("credentials", {
+                email: method === "email" ? email : phone,
+                otp: values.code,
+                method: method,
+                redirect: false,
+            })
 
-            if (method === "sms" && phone) {
-                response = await authService.validateSmsCode(phone, values.code)
-            } else if (method === "email" && email) {
-                response = await authService.validateEmailCode(email, values.code)
-            }
-
-            if (response?.success) {
-                const user = {
-                    ...response.userData,
-                    userType: response.userType,
-                }
-                setUser(user)
+            if (result?.error) {
+                message.error("Email hoặc mật khẩu không chính xác")
+            } else {
                 message.success("Login successful!")
-
-                // Redirect based on user type
-                if (response.userType === "instructor") {
-                    router.push("/instructor")
-                } else {
-                    router.push("/student")
-                }
+                router.push("/")
+                router.refresh()
             }
-        } catch (error) {
-            message.error((error as ApiError).error)
+        } catch {
+            message.error("Có lỗi xảy ra, vui lòng thử lại")
         } finally {
             setLoading(false)
         }

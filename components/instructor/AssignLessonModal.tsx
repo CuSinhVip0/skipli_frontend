@@ -111,7 +111,7 @@ export default function AssignLessonModal({
                         { min: 3, message: "Title must be at least 3 characters" },
                     ]}
                 >
-                    <Input placeholder="Introduction to React" />
+                    <Input placeholder="Title..." />
                 </Form.Item>
 
                 <Form.Item
@@ -122,10 +122,7 @@ export default function AssignLessonModal({
                         { min: 10, message: "Description must be at least 10 characters" },
                     ]}
                 >
-                    <TextArea
-                        rows={4}
-                        placeholder="Learn the basics of React including components, props, and state..."
-                    />
+                    <TextArea rows={4} placeholder="" />
                 </Form.Item>
 
                 <Form.Item

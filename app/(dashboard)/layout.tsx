@@ -4,17 +4,18 @@ import { Layout, Menu, Button, Avatar, Dropdown } from "antd"
 import { LogoutOutlined, UserOutlined, BookOutlined, TeamOutlined } from "@ant-design/icons"
 import { useRouter, usePathname } from "next/navigation"
 import { useAuthStore } from "@/store/auth"
+import { signOut, useSession } from "next-auth/react"
+import { stat } from "fs"
 
 const { Header, Sider, Content } = Layout
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-    const { user, logout } = useAuthStore()
     const router = useRouter()
     const pathname = usePathname()
+    const { data: session, status } = useSession()
 
     const handleLogout = () => {
-        logout()
-        router.push("/login")
+        signOut({ callbackUrl: "/login" })
     }
 
     const instructorMenuItems = [
@@ -34,10 +35,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
     const studentMenuItems = [
         {
-            key: "/student",
+            key: "/student/my-lessons",
             icon: <BookOutlined />,
             label: "My Lessons",
-            onClick: () => router.push("/student"),
+            onClick: () => router.push("/student/my-lessons"),
         },
         {
             key: "/student/profile",
@@ -47,7 +48,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         },
     ]
 
-    const menuItems = user?.userType === "instructor" ? instructorMenuItems : studentMenuItems
+    const menuItems = session?.user.role === "instructor" ? instructorMenuItems : studentMenuItems
 
     const dropdownItems = [
         {
@@ -81,7 +82,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     </h1>
                     <span className="text-gray-400">|</span>
                     <span className="text-sm text-gray-600">
-                        {user?.userType === "instructor"
+                        {session?.user.role === "instructor"
                             ? "Instructor Dashboard"
                             : "Student Dashboard"}
                     </span>
@@ -92,10 +93,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         <Avatar icon={<UserOutlined />} className="bg-blue-500" />
                         <div className="flex flex-col">
                             <span className="text-sm font-medium text-gray-800">
-                                {user?.name || "User"}
+                                {session?.user.name || "User"}
                             </span>
                             <span className="text-xs text-gray-500">
-                                {user?.email || user?.phone}
+                                {session?.user.email || session?.user.phone}
                             </span>
                         </div>
                     </div>
@@ -104,12 +105,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
             <Layout className="h-full">
                 <Sider width={220} className="bg-white border-r border-r-gray-200">
-                    <Menu
-                        mode="inline"
-                        selectedKeys={[getSelectedKey()]}
-                        items={menuItems}
-                        className="border-r-0 pt-4"
-                    />
+                    {status === "authenticated" && (
+                        <Menu
+                            mode="inline"
+                            selectedKeys={[getSelectedKey()]}
+                            items={menuItems}
+                            className="border-r-0 pt-4"
+                        />
+                    )}
                 </Sider>
                 <Content className="bg-gray-50">{children}</Content>
             </Layout>

@@ -2,20 +2,21 @@
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Spin } from "antd"
-import { useAuthStore } from "@/store/auth"
+import { useSession } from "next-auth/react"
 
 export default function Home() {
     const router = useRouter()
-    const { user, isAuthenticated } = useAuthStore()
-
+    const { data: session, status } = useSession()
     useEffect(() => {
-        if (isAuthenticated && user?.userType) {
-            const dashboardPath = user.userType === "instructor" ? "/instructor" : "/student"
+        if (status === "loading") return // Đang loading
+
+        if (session) {
+            const dashboardPath = session.user.role === "instructor" ? "/instructor" : "/student"
             router.push(dashboardPath)
         } else {
             router.push("/login")
         }
-    }, [isAuthenticated, user, router])
+    }, [session, status, router])
 
     // Hiển thị loading trong khi redirect
     return (

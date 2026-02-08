@@ -1,4 +1,5 @@
 import axios, { AxiosError } from "axios"
+import { getSession } from "next-auth/react"
 export interface ApiError {
     error: string
     details?: string
@@ -13,6 +14,27 @@ export const apiClient = axios.create({
     },
     timeout: 10000,
 })
+
+apiClient.interceptors.request.use(
+    async (config) => {
+        try {
+            // Lấy session từ NextAuth (client-side)
+            await getSession().then((res) => {
+                if (res?.accessToken) {
+                    // Thêm JWT token vào Authorization header
+                    config.headers.Authorization = `Bearer ${res.accessToken}`
+                }
+            })
+        } catch (error) {
+            console.error("Error getting session:", error)
+        }
+
+        return config
+    },
+    (error) => {
+        return Promise.reject(error)
+    },
+)
 
 // 404
 apiClient.interceptors.response.use(
