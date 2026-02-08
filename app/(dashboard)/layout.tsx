@@ -19,10 +19,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
     const instructorMenuItems = [
         {
-            key: "/instructor",
+            key: "/instructor/manage-students",
             icon: <TeamOutlined />,
             label: "Students",
-            onClick: () => router.push("/instructor"),
+            onClick: () => router.push("/instructor/manage-students"),
+        },
+        {
+            key: "/instructor/manage-lessons",
+            icon: <TeamOutlined />,
+            label: "Lessons",
+            onClick: () => router.push("/instructor/manage-lessons"),
         },
     ]
 

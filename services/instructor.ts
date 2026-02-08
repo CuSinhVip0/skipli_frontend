@@ -5,6 +5,7 @@ import {
     GetStudentsResponse,
 } from "@/types/student.type"
 import { apiClient } from "../utils/apiClient"
+import { AssignLessonPayload, GetLesssonsResponse, UpdateLessonPayload } from "@/types/lesson.type"
 export interface ApiResponse<T = any> {
     success: boolean
     message?: string
@@ -68,6 +69,29 @@ export const instructorService = {
 
     deleteStudent: async (phone: string): Promise<ApiResponse> => {
         const response = await apiClient.delete<ApiResponse>(`/student/${phone}`)
+        return response.data
+    },
+    assignLesson: async (payload: AssignLessonPayload): Promise<ApiResponse> => {
+        const response = await apiClient.post<ApiResponse>("/assignLesson", payload)
+        return response.data
+    },
+    editStatusLesson: async (
+        data: Pick<EditStudentPayload, "id" | "isActive">,
+    ): Promise<ApiResponse> => {
+        const response = await apiClient.put<ApiResponse>(`/editStatusLesson`, data)
+        return response.data
+    },
+    updateLesson: async (payload: UpdateLessonPayload): Promise<ApiResponse> => {
+        const response = await apiClient.post<ApiResponse>("/updateLesson", payload)
+        return response.data
+    },
+
+    deleteLesson: async (id: string): Promise<ApiResponse> => {
+        const response = await apiClient.delete<ApiResponse>(`/lesson/${id}`)
+        return response.data
+    },
+    lessons: async (): Promise<GetLesssonsResponse> => {
+        const response = await apiClient.get<GetLesssonsResponse>("/lessons")
         return response.data
     },
 }
