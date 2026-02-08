@@ -1,6 +1,28 @@
 /* Import Tailwind without base/preflight layer to avoid conflicts with Ant Design */
 @import "tailwindcss";
+@theme {
+    /* Ensure all default utilities are enabled */
+    --font-sans:
+        -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
 
+/* Force Tailwind utilities to have higher specificity than Ant Design */
+[class*="p-"],
+[class*="m-"],
+[class*="px-"],
+[class*="py-"],
+[class*="mx-"],
+[class*="my-"],
+[class*="pt-"],
+[class*="pb-"],
+[class*="pl-"],
+[class*="pr-"],
+[class*="mt-"],
+[class*="mb-"],
+[class*="ml-"],
+[class*="mr-"] {
+    /* These will use Tailwind's utility values */
+}
 * {
     margin: 0;
     padding: 0;

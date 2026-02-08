@@ -1,7 +1,13 @@
 "use client"
 
 import { Layout, Menu, Button, Avatar, Dropdown } from "antd"
-import { LogoutOutlined, UserOutlined, BookOutlined, TeamOutlined } from "@ant-design/icons"
+import {
+    LogoutOutlined,
+    UserOutlined,
+    BookOutlined,
+    TeamOutlined,
+    MessageOutlined,
+} from "@ant-design/icons"
 import { useRouter, usePathname } from "next/navigation"
 import { signOut, useSession } from "next-auth/react"
 
@@ -25,9 +31,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         },
         {
             key: "/instructor/manage-lessons",
-            icon: <TeamOutlined />,
+            icon: <BookOutlined />,
             label: "Lessons",
             onClick: () => router.push("/instructor/manage-lessons"),
+        },
+        {
+            key: "/instructor/chat",
+            icon: <MessageOutlined />,
+            label: "Messages",
+            onClick: () => router.push("/instructor/chat"),
         },
     ]
 
@@ -44,6 +56,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             label: "Profile",
             onClick: () => router.push("/student/edit-profile"),
         },
+        {
+            key: "/student/chat",
+            icon: <MessageOutlined />,
+            label: "Messages",
+            onClick: () => router.push("/student/chat"),
+        },
     ]
 
     const menuItems = session?.user.role === "instructor" ? instructorMenuItems : studentMenuItems
@@ -59,7 +77,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
     // Determine selected menu key based on pathname
     const getSelectedKey = () => {
-        if (pathname.startsWith("/instructor/manage-students")) {
+        if (pathname.startsWith("/instructor/chat")) {
+            return "/instructor/chat"
+        } else if (pathname.startsWith("/instructor/manage-students")) {
             return "/instructor/manage-students"
         } else if (pathname.startsWith("/instructor/manage-lessons")) {
             return "/instructor/manage-lessons"

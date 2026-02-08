@@ -6,7 +6,7 @@ declare module "next-auth" {
      * from our backend response
      */
     export interface UserObject {
-        id: number
+        id: string
         email: string
         name: string
         role: string

@@ -110,7 +110,6 @@ export const authOptions: NextAuthOptions = {
                 return token
             }
             // The current access token has expired, but the refresh token is still valid
-            console.log("🚀 ~ token.data.validity.refresh_until:", token)
             if (Date.now() < token.data.validity.refresh_until * 1000) {
                 return await refreshAccessToken(token)
             }
