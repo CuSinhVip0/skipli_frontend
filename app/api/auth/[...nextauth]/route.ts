@@ -63,7 +63,10 @@ export const authOptions: NextAuthOptions = {
                     }
 
                     if (response?.success == true) {
-                        const tokens: BackendJWT = response as unknown as BackendJWT
+                        const tokens: BackendJWT = {
+                            access: response.access,
+                            refresh: response.refresh,
+                        } as BackendJWT
 
                         const access: DecodedJWT = jwtDecode(tokens.access)
                         const refresh: DecodedJWT = jwtDecode(tokens.refresh)
@@ -107,6 +110,7 @@ export const authOptions: NextAuthOptions = {
                 return token
             }
             // The current access token has expired, but the refresh token is still valid
+            console.log("🚀 ~ token.data.validity.refresh_until:", token)
             if (Date.now() < token.data.validity.refresh_until * 1000) {
                 return await refreshAccessToken(token)
             }
@@ -130,7 +134,7 @@ export const authOptions: NextAuthOptions = {
         },
     },
     pages: {
-        signIn: "/verify",
+        signIn: "/login",
     },
     session: {
         strategy: "jwt",

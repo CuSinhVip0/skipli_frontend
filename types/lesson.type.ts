@@ -1,5 +1,6 @@
 export interface Lesson {
     id?: string
+    lessonId?: string
     title: string
     description: string
     assignedAt: string

@@ -10,6 +10,8 @@ export interface SendCodeResponse {
 export interface ValidateCodeResponse {
     success: boolean
     message?: string
+    access?: string
+    refresh?: string
     userType: UserType
     userData: AuthUser
 }

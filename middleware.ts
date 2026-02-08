@@ -22,7 +22,8 @@ export default withAuth(
     {
         callbacks: {
             authorized: ({ token }) => {
-                return true
+                // For other pages, require valid token with data
+                return !!token
             },
         },
         pages: {
@@ -31,5 +32,5 @@ export default withAuth(
     },
 )
 export const config = {
-    matcher: ["/((?!api/auth|_next/static|_next/image|favicon.ico).*)"],
+    matcher: ["/((?!api/auth|login|verify|_next/static|_next/image|favicon.ico).*)"],
 }

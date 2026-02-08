@@ -41,7 +41,35 @@ apiClient.interceptors.response.use(
     (response) => {
         return response
     },
-    (error: AxiosError) => {
+    async (error: AxiosError) => {
+        const originalRequest = error.config as any
+
+        // Check if error is due to expired token
+        if (
+            error.response?.status === 401 &&
+            (error.response?.data as any)?.code === "TOKEN_EXPIRED" &&
+            !originalRequest._retry
+        ) {
+            originalRequest._retry = true
+
+            try {
+                // Get fresh session which will trigger NextAuth to refresh token
+                const session = await getSession()
+
+                if (session?.accessToken) {
+                    // Update the authorization header with new token
+                    originalRequest.headers.Authorization = `Bearer ${session.accessToken}`
+                    // Retry the original request
+                    return apiClient(originalRequest)
+                }
+            } catch (refreshError) {
+                console.error("Error refreshing token:", refreshError)
+                // Redirect to login if refresh fails
+                window.location.href = "/login"
+                return Promise.reject(refreshError)
+            }
+        }
+
         const apiError: ApiError = {
             error: "Failed system server",
             statusCode: error.response?.status,

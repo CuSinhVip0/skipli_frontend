@@ -1,3 +1,5 @@
+import { Lesson } from "./lesson.type"
+
 export interface Student {
     id?: string
     phone: string
@@ -30,4 +32,8 @@ export interface GetStudentsResponse {
 export interface GetStudentResponse {
     success: boolean
     student: Student
+}
+export interface GetMyLessonsResponse {
+    success: boolean
+    lessons: Lesson[]
 }
