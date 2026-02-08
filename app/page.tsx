@@ -9,7 +9,6 @@ export default function Home() {
     const { user, isAuthenticated } = useAuthStore()
 
     useEffect(() => {
-        console.log("🚀 ~ Home ~ user:", user)
         if (isAuthenticated && user?.userType) {
             const dashboardPath = user.userType === "instructor" ? "/instructor" : "/student"
             router.push(dashboardPath)
