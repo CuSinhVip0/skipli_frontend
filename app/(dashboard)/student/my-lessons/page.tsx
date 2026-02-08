@@ -75,7 +75,7 @@ export default function StudentDashboard() {
         >
             <div className="flex flex-col gap-2 bg-white rounded-lg shadow-sm">
                 <div className="basis-auto grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                    <Flex>
+                    <Flex gap={"middle"}>
                         <Card className="w-full">
                             <div className="flex items-center gap-2">
                                 <div className="bg-amber-100 p-3 rounded-lg">
@@ -109,7 +109,7 @@ export default function StudentDashboard() {
                             </div>
                         </Card>
                     </Flex>
-                    <Card>
+                    <Card className="md:col-span-2 col-span-3 flex flex-col justify-center">
                         <div>
                             <div className="flex justify-between items-center mb-2">
                                 <span className="text-sm font-medium text-gray-600">
@@ -143,7 +143,7 @@ export default function StudentDashboard() {
                         </Empty>
                     </Card>
                 ) : (
-                    <div className="grow grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 ">
+                    <div className="grow grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ">
                         {lessons.map((lesson) => {
                             return (
                                 <div key={lesson.id} style={{ padding: "8px 0px" }}>
@@ -151,13 +151,13 @@ export default function StudentDashboard() {
                                         size="small"
                                         title={
                                             <div className="flex justify-between items-center">
-                                                <span className="text-xl font-semibold">
-                                                    {lesson.title}
-                                                </span>
-                                                {lesson.completed ? (
-                                                    <div className=" flex flex-row gap-2">
-                                                        <div className="mt-1  text-sm">
-                                                            <span className="font-medium">
+                                                <div className="flex flex-col ">
+                                                    <span className="text-xl font-semibold">
+                                                        {lesson.title}
+                                                    </span>
+                                                    {lesson.completed ? (
+                                                        <div className="text-[12px] font-light">
+                                                            <span className="font-light">
                                                                 Completed:
                                                             </span>{" "}
                                                             {format(
@@ -165,6 +165,20 @@ export default function StudentDashboard() {
                                                                 "MMM dd, yyyy",
                                                             )}
                                                         </div>
+                                                    ) : (
+                                                        <div className="text-[12px] font-light">
+                                                            <span className="font-light">
+                                                                Assigned:
+                                                            </span>{" "}
+                                                            {format(
+                                                                new Date(lesson?.assignedAt || ""),
+                                                                "MMM dd, yyyy",
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                {lesson.completed ? (
+                                                    <div className=" flex flex-row gap-2">
                                                         <Tag
                                                             icon={<CheckCircleOutlined />}
                                                             color="success"
@@ -174,15 +188,6 @@ export default function StudentDashboard() {
                                                     </div>
                                                 ) : (
                                                     <div className=" flex flex-row gap-2">
-                                                        <div className="mt-1  text-sm">
-                                                            <span className="font-medium">
-                                                                Assigned:
-                                                            </span>
-                                                            {format(
-                                                                new Date(lesson?.assignedAt || ""),
-                                                                "MMM dd, yyyy",
-                                                            )}
-                                                        </div>
                                                         <Tag
                                                             icon={<ClockCircleOutlined />}
                                                             color="warning"
@@ -194,9 +199,9 @@ export default function StudentDashboard() {
                                             </div>
                                         }
                                         className="h-full flex flex-col"
-                                        classNames={{ body: "!py-2 p-0!" }}
+                                        classNames={{ body: "!py-2 p-2! flex flex-col gap-2" }}
                                     >
-                                        <p className="text-gray-600 text-xl flex-1">
+                                        <p className="text-gray-600 text-md flex-1">
                                             {lesson.description}
                                         </p>
 
@@ -205,7 +210,7 @@ export default function StudentDashboard() {
                                                 <Flex gap={"small"}>
                                                     <Button
                                                         block
-                                                        size="middle"
+                                                        size="small"
                                                         loading={loadingStatus}
                                                         onClick={() => {
                                                             setOpenModal(true)
@@ -218,7 +223,7 @@ export default function StudentDashboard() {
                                                     <Button
                                                         type="primary"
                                                         block
-                                                        size="middle"
+                                                        size="small"
                                                         loading={loadingStatus}
                                                         onClick={() =>
                                                             handleMarkDone(lesson?.id || "")
@@ -233,7 +238,7 @@ export default function StudentDashboard() {
                                             {lesson.completed && (
                                                 <Button
                                                     block
-                                                    size="middle"
+                                                    size="small"
                                                     loading={loadingStatus}
                                                     onClick={() => {
                                                         setOpenModal(true)

@@ -198,7 +198,7 @@ export default function InstructorChatPage() {
         >
             <div className="h-full flex flex-col bg-gray-100">
                 <div className="flex-1 overflow-hidden">
-                    <div className="max-w-screen-2xl mx-auto h-full flex gap-0">
+                    <div className="max-w-screen mx-auto h-full flex gap-0">
                         <div className="w-96 p-6 bg-white border-r border-r-gray-200  flex flex-col">
                             <div className=" flex gap-2 flex-col p-4 border-b border-b-gray-200">
                                 <div className="flex gap-2 mt-3">

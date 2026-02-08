@@ -74,7 +74,7 @@ function VerifyContent() {
                 </Button>
 
                 <div className="text-center mb-8">
-                    <div className="mb-4">
+                    <div className="mb-4 flex items-center justify-center ">
                         <div className="w-16 h-16 mx-auto bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
                             <SafetyOutlined className="text-3xl text-white" />
                         </div>

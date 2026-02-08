@@ -1,36 +1,100 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SKIPLI - Frontend Application
 
-## Getting Started
+Phần Frontend
 
-First, run the development server:
+## 📁 Cấu trúc thư mục
+
+```
+frontend/
+├── app/                              # Next.js App Router
+│   ├── globals.css                   # Global styles
+│   ├── layout.tsx                    # Root layout
+│   ├── page.tsx                      # Trang chủ
+│   ├── providers.tsx                 # Context providers
+│   ├── (auth)/                       # Auth routes group
+│   │   ├── login/                    # Trang đăng nhập
+│   │   └── verify/                   # Trang xác thực OTP
+│   ├── (dashboard)/                  # Dashboard routes group
+│   │   ├── layout.tsx                # Dashboard layout
+│   │   ├── instructor/               # Trang giáo viên
+│   │   │   ├── page.tsx              # Dashboard giáo viên
+│   │   │   ├── chat/                 # Chat giáo viên
+│   │   │   ├── manage-lessons/       # Quản lý bài học
+│   │   │   └── manage-students/      # Quản lý học viên
+│   │   └── student/                  # Trang học viên
+│   │       ├── page.tsx              # Dashboard học viên
+│   │       ├── chat/                 # Chat học viên
+│   │       ├── edit-profile/         # Sửa thông tin
+│   │       └── my-lessons/           # Bài học của tôi
+│   └── api/                          # API routes
+│       └── auth/                     # NextAuth API routes
+├── components/                       # React components
+│   ├── LayoutComponent.tsx           # Layout component
+│   ├── chat/                         # Chat components
+│   │   ├── ChatContainer.tsx
+│   │   ├── ChatMessage.tsx
+│   │   ├── ConversationList.tsx
+│   │   ├── CreateGroupModal.tsx
+│   │   └── TypingIndicator.tsx
+│   ├── instructor/                   # Instructor components
+│   │   ├── AddStudentModal.tsx
+│   │   └── AssignLessonModal.tsx
+│   └── student/                      # Student components
+│       └── DetailsView.tsx
+├── hooks/                            # Custom React hooks
+│   └── useChat.ts                    # Chat hook
+├── services/                         # API services
+│   ├── auth.ts                       # Authentication service
+│   ├── chat.ts                       # Chat service
+│   ├── instructor.ts                 # Instructor service
+│   ├── student.ts                    # Student service
+│   └── socket.ts                     # Socket.IO service
+├── store/                            # Zustand stores
+│   └── auth.ts                       # Auth store
+├── types/                            # TypeScript types
+│   ├── index.ts
+│   ├── chat.type.ts
+│   ├── lesson.type.ts
+│   ├── student.type.ts
+│   └── next-auth.d.ts                # NextAuth type definitions
+├── utils/                            # Utility functions
+│   ├── apiClient.ts                  # Axios instance
+│   └── index.ts
+└── styles/                           # Style utilities
+    └── index.ts
+```
+
+## 🔧 Cài đặt
+
+### 1. Cài đặt dependencies
+
+```bash
+npm install
+```
+
+### 2. Cấu hình biến môi trường
+
+Tạo file `.env` trong thư mục `frontend/` với nội dung:
+
+```env
+# Backend API
+NEXT_PUBLIC_API_URL=http://localhost:5000
+NEXT_PUBLIC_SOCKET_URL=http://localhost:5000
+
+# NextAuth
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your_nextauth_secret_key_here
+
+# App Config
+NEXT_PUBLIC_APP_NAME=SKIPLI
+```
+
+## 🚀 Chạy ứng dụng
+
+### Chế độ development
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Ứng dụng sẽ chạy tại `http://localhost:3000`
