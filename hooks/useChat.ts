@@ -65,7 +65,7 @@ export function useChat(options: UseChatOptions | null) {
         const handleUserLeft = (data: { userName: string }) => {}
 
         const handleUserTyping = (data: { userName: string; isTyping: boolean }) => {
-            if (data.userName === userName) return // Ignore own typing status
+            if (data.userName === userName) return
 
             setTypingUsers((prev) => {
                 if (data.isTyping) {

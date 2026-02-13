@@ -203,6 +203,10 @@ export default function InstructorChatPage() {
                             <div className=" flex gap-2 flex-col p-4 border-b border-b-gray-200">
                                 <div className="flex gap-2 mt-3">
                                     <Button
+                                        color="red"
+                                        styles={{
+                                            root: { backgroundColor: "red" },
+                                        }}
                                         type="primary"
                                         icon={<TeamOutlined />}
                                         onClick={() => setCreateGroupVisible(true)}

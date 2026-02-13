@@ -15,11 +15,10 @@ async function refreshAccessToken(nextAuthJWT: JWT): Promise<JWT> {
     try {
         const res = await authService.refresh(nextAuthJWT.data.tokens.refresh)
         if (res.success === true) {
-            const accessToken: BackendAccessJWT = res.access as BackendAccessJWT
-            const { exp }: DecodedJWT = jwtDecode(accessToken.access)
+            const { exp }: DecodedJWT = jwtDecode(res.access as string)
 
             nextAuthJWT.data.validity.valid_until = exp
-            nextAuthJWT.data.tokens.access = accessToken.access
+            nextAuthJWT.data.tokens.access = res.access as string
             return { ...nextAuthJWT }
         } else {
             return {
@@ -101,23 +100,16 @@ export const authOptions: NextAuthOptions = {
             return url.startsWith(baseUrl) ? Promise.resolve(url) : Promise.resolve(baseUrl)
         },
         async jwt({ token, user, account }: any) {
-            // Khi user đăng nhập lần đầu, lưu thông tin vào JWT token
             if (user && account) {
                 return { ...token, data: user }
             }
-            // The current access token is still valid
             if (Date.now() < token.data.validity.valid_until * 1000) {
                 return token
             }
-            // The current access token has expired, but the refresh token is still valid
             if (Date.now() < token.data.validity.refresh_until * 1000) {
                 return await refreshAccessToken(token)
             }
 
-            // The current access token and refresh token have both expired
-            // This should not really happen unless you get really unlucky with
-            // the timing of the token expiration because the middleware should
-            // have caught this case before the callback is called
             return { ...token, error: "RefreshTokenExpired" } as JWT
         },
 

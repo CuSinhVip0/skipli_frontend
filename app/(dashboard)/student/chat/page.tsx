@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useMemo, useCallback } from "react"
+import { useEffect, useState, useMemo, useCallback, useContext } from "react"
 import { Button, Input, App, AutoComplete, Empty } from "antd"
 import { PlusOutlined, TeamOutlined, MessageOutlined, SearchOutlined } from "@ant-design/icons"
 import { chatService } from "@//services/chat"
@@ -12,8 +12,15 @@ import CreateGroupModal from "@/components/chat/CreateGroupModal"
 import type { Conversation, EntitiesConversation } from "@/types/chat.type"
 import { useSession } from "next-auth/react"
 import { LayoutComponent } from "@/components/LayoutComponent"
+import { SettingContext, SettingContextType } from "@/app/providers"
+import { useDispatch, useSelector } from "react-redux"
+import { setName } from "@/store/redux/slice/user"
 
 export default function InstructorChatPage() {
+    // const { state } = useContext<SettingContextType>(SettingContext)
+    const theme = useSelector((state: any) => state)
+    console.log("🚀 ~ InstructorChatPage ~ theme:", theme)
+    const dispatch = useDispatch()
     const { data: session, status } = useSession()
     const { message } = App.useApp()
     const [conversationsEntities, setConversationsEntities] = useState<any[]>([])
@@ -203,13 +210,23 @@ export default function InstructorChatPage() {
                             <div className=" flex gap-2 flex-col p-4 border-b border-b-gray-200">
                                 <div className="flex gap-2 mt-3">
                                     <Button
+                                        styles={{
+                                            root: {
+                                                backgroundColor: "red",
+                                                width: "210px",
+                                                margin: "0 auto",
+                                            },
+                                        }}
                                         type="primary"
                                         icon={<TeamOutlined />}
-                                        onClick={() => setCreateGroupVisible(true)}
+                                        // onClick={() => setCreateGroupVisible(true)}
+                                        onClick={() => {
+                                            dispatch(setName("Hello Redux"))
+                                        }}
                                         block
                                     >
                                         New Group
-                                    </Button>
+                                    </Button>{" "}
                                 </div>
                                 <AutoComplete
                                     value={searchQuery}
